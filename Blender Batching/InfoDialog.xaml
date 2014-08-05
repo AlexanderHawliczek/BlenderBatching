@@ -1,0 +1,70 @@
+﻿<Window x:Class="Blender_Batching.InfoDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Info" Height="400" Width="400" MaxHeight="400" MaxWidth="400" ShowInTaskbar="False" ScrollViewer.VerticalScrollBarVisibility="Disabled" Topmost="True" WindowStartupLocation="CenterOwner" ResizeMode="NoResize" Icon="icon.ico">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="97"/>
+            <ColumnDefinition Width="297*"/>
+        </Grid.ColumnDefinitions>
+        <Image Source="Ressources/icon.png" Grid.Column="0" Margin="10,10,7,0" Width="80" Height="80" VerticalAlignment="Top"/>
+        <Label Content="Blender Batching" Margin="61,10,60,0" VerticalAlignment="Top" RenderTransformOrigin="1.447,0.5" FontSize="20" FontWeight="Bold" Width="176" Grid.Column="1"/>
+        <Label Content="v 0.1.0 (GPL v3)" Margin="96,52,97,0" VerticalAlignment="Top" HorizontalContentAlignment="Center" Grid.Column="1"/>
+        <Button Content="OK" Margin="61,0,158,10" Height="20" VerticalAlignment="Bottom" IsDefault="True" Click="Button_Click" Grid.Column="1"/>
+        <RichTextBox Margin="10,95,10,65" AllowDrop="False" AutoWordSelection="False" Block.TextAlignment="Justify" HorizontalContentAlignment="Stretch" IsDocumentEnabled="True" IsReadOnly="True" IsUndoEnabled="False" AcceptsReturn="False" Grid.ColumnSpan="2">
+            <FlowDocument>
+                <Paragraph>
+                    <Run Text="Generate batch files for your selected blend files or let them be rendered instantly."/>
+                </Paragraph>
+                <Paragraph>
+                    <ContentControl>
+                        <Span>
+                            <Run Text="See GitHub for documentation: "/>
+                            <Hyperlink NavigateUri="https://github.com/AlexanderHawliczek/BlenderBatching" Click="Hyperlink_Click">
+                                <Run Text="Blender Batching"/>
+                            </Hyperlink>
+                        </Span>
+                    </ContentControl>
+                </Paragraph>
+                <Paragraph >
+                    <Run Text="Special thanks to:"/>
+                    <LineBreak/>
+                    <ContentControl>
+                        <Span>
+                            <Hyperlink NavigateUri="https://openclipart.org/" Click="Hyperlink_Click">
+                                <Run Text="openclipart.org"/>
+                            </Hyperlink>
+                        </Span>
+                    </ContentControl>
+                    <LineBreak/>
+                    <ContentControl>
+                        <Span>
+                            <Hyperlink NavigateUri="http://de.fordesigner.com/" Click="Hyperlink_Click">
+                                <Run Text="fordesigner.com"/>
+                            </Hyperlink>
+                        </Span>
+                    </ContentControl>
+                    <LineBreak/>
+                    <Run Text="and the artist for their contributions"/>
+                    <LineBreak></LineBreak>
+                </Paragraph>
+                <Paragraph>
+                    <ContentControl>
+                        <Span>
+                            <Run Text="This tool works best with: "/>
+                            <Hyperlink NavigateUri="http://www.blender.org/" Click="Hyperlink_Click">
+                                <Run Text="Blender.org"/>
+                            </Hyperlink>
+                        </Span>
+                    </ContentControl>
+                </Paragraph>
+            </FlowDocument>
+        </RichTextBox>
+        <Button x:Name="ppDonateBtn" Margin="0,0,10,10" HorizontalAlignment="Right" Width="80" ToolTip="Donate with PayPal" VerticalAlignment="Bottom" Click="ppDonateBtn_Click" Grid.Column="1">
+            <StackPanel>
+                <Image Source="Ressources/ppDonate.png"/>
+            </StackPanel>
+        </Button>
+
+    </Grid>
+</Window>
