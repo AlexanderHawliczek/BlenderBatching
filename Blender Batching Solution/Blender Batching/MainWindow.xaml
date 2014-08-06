@@ -44,9 +44,7 @@
             </ToggleButton.Template>
         </ToggleButton>
         <Button x:Name="clearBtn" HorizontalAlignment="Left" Margin="165,5,0,0" VerticalAlignment="Top" Width="40" Click="clearBtn_Click" Height="40" Background="#FFBFBFBF" ToolTip="Clear Blend List">
-            <StackPanel>
-                <Image Source="Ressources/9.png" />
-            </StackPanel>
+            <Image Source="Ressources/9.png" />
         </Button>
         <Button x:Name="blenderBtn" HorizontalAlignment="Left" Margin="210,5,0,0" VerticalAlignment="Top" Width="40" Height="40" Background="#FFBFBFBF" ToolTip="Set Blender Path" Click="blenderBtn_Click">
             <StackPanel>
@@ -78,7 +76,7 @@
                 <Image Source="Ressources/ppDonate.png" Width="70" />
             </StackPanel>
         </Button>
-        <DataGrid x:Name="blendGrid" Margin="10,2,10,0" Grid.Row="1" AutoGenerateColumns="False" DataContext="{StaticResource ItemCollectionViewSource}" ItemsSource="{Binding}" CanUserAddRows="False" CanUserResizeRows="False" ContextMenuOpening="blendGrid_ContextMenuOpening" ContextMenuClosing="blendGrid_ContextMenuClosing" HeadersVisibility="Column" ToolTip="Select files, change render attributes &#x0a;((Multi) select and right click for changing attributes for all selected files)" VerticalContentAlignment="Center" CanUserReorderColumns="False" AlternationCount="1" AlternatingRowBackground="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}">
+        <DataGrid x:Name="blendGrid" Margin="10,2,10,0" Grid.Row="1" AutoGenerateColumns="False" DataContext="{StaticResource ItemCollectionViewSource}" ItemsSource="{Binding}" CanUserAddRows="False" CanUserResizeRows="False" ContextMenuOpening="blendGrid_ContextMenuOpening" ContextMenuClosing="blendGrid_ContextMenuClosing" HeadersVisibility="Column" VerticalContentAlignment="Center" CanUserReorderColumns="False" AlternationCount="1" AlternatingRowBackground="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}">
             <DataGrid.Resources>
                 <DataTemplate x:Key="verticalCentered_Text">
                     <TextBlock VerticalAlignment="Center">
@@ -102,10 +100,10 @@
                 </ContextMenu>
             </DataGrid.ContextMenu>
             <DataGrid.Columns>
-                <DataGridTemplateColumn CanUserReorder="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" Header="Use" Width="30" ToolTipService.ToolTip="Enable to use this blend file" CanUserSort="True" SortMemberPath="Use">
+                <DataGridTemplateColumn CanUserReorder="False" CanUserResize="False" ClipboardContentBinding="{x:Null}" Header="Use" Width="30" CanUserSort="True" SortMemberPath="Use">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center" ToolTip="Enable to use this blend file">
                                 <CheckBox.IsChecked>
                                     <Binding Path="Use" UpdateSourceTrigger="PropertyChanged"/>
                                 </CheckBox.IsChecked>
@@ -116,7 +114,7 @@
                 <DataGridTemplateColumn  Header="Name" Width="40*" IsReadOnly="True" CanUserReorder="False" CanUserSort="True" SortMemberPath="Name">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock VerticalAlignment="Center"  Padding="5,0,0,0">
+                            <TextBlock VerticalAlignment="Center"  Padding="5,0,0,0"  ToolTip="Name of the blend file">
                                 <TextBlock.Text>
                                     <Binding Path="Name"/>
                                 </TextBlock.Text>
@@ -127,7 +125,7 @@
                 <DataGridTemplateColumn   Header="Folder" Width="60*" IsReadOnly="True" CanUserReorder="False" CanUserSort="True" SortMemberPath="Folder">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock VerticalAlignment="Center" Padding="5,0,0,0">
+                            <TextBlock VerticalAlignment="Center" Padding="5,0,0,0"  ToolTip="Folder including this blend file">
                                 <TextBlock.Text>
                                     <Binding Path="Folder"/>
                                 </TextBlock.Text>
@@ -135,10 +133,10 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn   Header="Start" Width="50" ToolTipService.ToolTip="Start frame&#x0a;(-1 for file value)" CanUserReorder="False" CanUserSort="True" SortMemberPath="Start">
+                <DataGridTemplateColumn   Header="Start" Width="50" CanUserReorder="False" CanUserSort="True" SortMemberPath="Start">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock VerticalAlignment="Center"  Padding="5,0,0,0">
+                            <TextBlock VerticalAlignment="Center"  Padding="5,0,0,0" ToolTip="Start frame&#x0a;(-1 for file value)" >
                                 <TextBlock.Text>
                                     <Binding Path="Start"/>
                                 </TextBlock.Text>
@@ -147,7 +145,7 @@
                     </DataGridTemplateColumn.CellTemplate>
                     <DataGridTemplateColumn.CellEditingTemplate>
                         <DataTemplate>
-                            <xctk:IntegerUpDown VerticalAlignment="Center" VerticalContentAlignment="Center" Minimum="-1">
+                            <xctk:IntegerUpDown VerticalAlignment="Center" VerticalContentAlignment="Center" Minimum="-1" ToolTip="Start frame&#x0a;(-1 for file value)" >
                                 <xctk:IntegerUpDown.Value>
                                     <Binding Path="Start" UpdateSourceTrigger="PropertyChanged"/>
                                 </xctk:IntegerUpDown.Value>
@@ -155,10 +153,10 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellEditingTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn Header="End" Width="50" ToolTipService.ToolTip="End frame for animations&#x0a;(&lt;= 'Start' for single image render)" CanUserReorder="False" CanUserSort="True" SortMemberPath="End">
+                <DataGridTemplateColumn Header="End" Width="50" CanUserReorder="False" CanUserSort="True" SortMemberPath="End">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock VerticalAlignment="Center"  Padding="5,0,0,0">
+                            <TextBlock VerticalAlignment="Center"  Padding="5,0,0,0" ToolTip="End frame for animations&#x0a;(&lt;= 'Start' for single image render)">
                                 <TextBlock.Text>
                                     <Binding Path="End"/>
                                 </TextBlock.Text>
@@ -167,7 +165,7 @@
                     </DataGridTemplateColumn.CellTemplate>
                     <DataGridTemplateColumn.CellEditingTemplate>
                         <DataTemplate>
-                            <xctk:IntegerUpDown VerticalAlignment="Center" VerticalContentAlignment="Center" Minimum="-1">
+                            <xctk:IntegerUpDown VerticalAlignment="Center" VerticalContentAlignment="Center" Minimum="-1" ToolTip="End frame for animations&#x0a;(&lt;= 'Start' for single image render)">
                                 <xctk:IntegerUpDown.Value>
                                     <Binding Path="End" UpdateSourceTrigger="PropertyChanged"/>
                                 </xctk:IntegerUpDown.Value>
@@ -175,10 +173,10 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellEditingTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn Header="Threads" Width="60" ToolTipService.ToolTip="Threads to use&#x0a;(0 for automatic and -1 for file value)" CanUserReorder="False" CanUserSort="True" SortMemberPath="Threads">
+                <DataGridTemplateColumn Header="Threads" Width="60" CanUserReorder="False" CanUserSort="True" SortMemberPath="Threads">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock VerticalAlignment="Center"  Padding="5,0,0,0">
+                            <TextBlock VerticalAlignment="Center"  Padding="5,0,0,0" ToolTip="Threads to use&#x0a;(0 for automatic and -1 for file value)">
                                 <TextBlock.Text>
                                     <Binding Path="Threads"/>
                                 </TextBlock.Text>
@@ -187,7 +185,7 @@
                     </DataGridTemplateColumn.CellTemplate>
                     <DataGridTemplateColumn.CellEditingTemplate>
                         <DataTemplate>
-                            <xctk:IntegerUpDown VerticalAlignment="Center" VerticalContentAlignment="Center" Minimum="-1">
+                            <xctk:IntegerUpDown VerticalAlignment="Center" VerticalContentAlignment="Center" Minimum="-1" ToolTip="Threads to use&#x0a;(0 for automatic and -1 for file value)">
                                 <xctk:IntegerUpDown.Value>
                                     <Binding Path="Threads" UpdateSourceTrigger="PropertyChanged"/>
                                 </xctk:IntegerUpDown.Value>
@@ -195,10 +193,10 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellEditingTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn Header="FileMask" Width="40*" ToolTipService.ToolTip="Output file mask&#x0a;(-1 here or at 'Output' for file value)" CanUserReorder="False" CanUserSort="True" SortMemberPath="FileMask">
+                <DataGridTemplateColumn Header="FileMask" Width="40*" CanUserReorder="False" CanUserSort="True" SortMemberPath="FileMask">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock VerticalAlignment="Center"  Padding="5,0,0,0">
+                            <TextBlock VerticalAlignment="Center"  Padding="5,0,0,0" ToolTip="Output file mask&#x0a;(-1 here or at 'Output' for file value)">
                                 <TextBlock.Text>
                                     <Binding Path="FileMask"/>
                                 </TextBlock.Text>
@@ -207,7 +205,7 @@
                     </DataGridTemplateColumn.CellTemplate>
                     <DataGridTemplateColumn.CellEditingTemplate>
                         <DataTemplate>
-                            <TextBox VerticalAlignment="Center" VerticalContentAlignment="Center">
+                            <TextBox VerticalAlignment="Center" VerticalContentAlignment="Center" ToolTip="Output file mask&#x0a;(-1 here or at 'Output' for file value)">
                                 <TextBox.Text>
                                     <Binding Path="FileMask" UpdateSourceTrigger="PropertyChanged"/>
                                 </TextBox.Text>
@@ -219,8 +217,10 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" >
-                                <Button Name="outputFolderSelectBtn" Content="F" Width="20" Click="outputFolderSelectBtn_Click" Margin="5,0,5,0"/>
-                                <TextBlock VerticalAlignment="Center">
+                                <Button Name="outputFolderSelectBtn" Width="20" Click="outputFolderSelectBtn_Click" Margin="5,0,5,0" ToolTip="Opens folder select dialog&#x0a;(-1 here or at 'FileMask' for file value)">
+                                    <Image Source="Ressources/36.png" />
+                                </Button>
+                                <TextBlock VerticalAlignment="Center"  ToolTip="Output folder&#x0a;Double click for direct editing&#x0a;(-1 here or at 'FileMask' for file value)">
                                     <TextBlock.Text>
                                         <Binding Path="Output"/>
                                     </TextBlock.Text>
@@ -230,7 +230,7 @@
                     </DataGridTemplateColumn.CellTemplate>
                     <DataGridTemplateColumn.CellEditingTemplate>
                         <DataTemplate>
-                            <TextBox>
+                            <TextBox ToolTip="Output folder&#x0a;(-1 here or at 'FileMask' for file value)">
                                 <TextBox.Text>
                                     <Binding  Path="Output"/>
                                 </TextBox.Text>
