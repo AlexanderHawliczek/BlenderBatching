@@ -20,6 +20,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Runtime.InteropServices;
+using Xceed.Wpf.Toolkit;
 
 namespace Blender_Batching
 {
@@ -99,19 +100,19 @@ namespace Blender_Batching
             changeSelected("Use", false);
         }
 
-        private void startTB_TextChanged(object sender, TextChangedEventArgs e)
+        private void threadsIUD_ValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            changeSelectedInt(sender, e, "Start");
+            changeSelected("Threads", (int)((IntegerUpDown)sender).Value);
         }
 
-        private void endTB_TextChanged(object sender, TextChangedEventArgs e)
+        private void endIUD_ValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            changeSelectedInt(sender, e, "End");
+            changeSelected("End", (int)((IntegerUpDown)sender).Value);
         }
 
-        private void threadsTB_TextChanged(object sender, TextChangedEventArgs e)
+        private void startIUD_ValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            changeSelectedInt(sender, e, "Threads");
+            changeSelected("Start", (int)((IntegerUpDown)sender).Value);
         }
 
         private void maskTB_TextChanged(object sender, TextChangedEventArgs e)
@@ -126,6 +127,12 @@ namespace Blender_Batching
             {
                 changeSelected("Output", svdlg.SelectedPath);
             }
+        }
+
+        private void outputTB_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            changeSelected("Output", ((System.Windows.Controls.TextBox)sender).Text);
+
         }
 
         private void changeSelectedInt(object sender, TextChangedEventArgs e, String propertyName)
@@ -244,15 +251,26 @@ namespace Blender_Batching
 
         private void blendGrid_BeginningEdit(object sender, DataGridBeginningEditEventArgs e)
         {
-            if (e.Column.Header.Equals("Output"))
+            //if (e.Column.Header.Equals("Output"))
+            //{
+            //    e.Cancel = true;
+            //    if (svdlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            //    {
+            //        ((BlendData)e.Row.Item).Output = svdlg.SelectedPath;
+            //        e.EditingEventArgs.Handled = true;
+            //        blendGrid.Items.Refresh();
+            //    }
+            //}
+        }
+
+        private void outputFolderSelectBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (svdlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                e.Cancel = true;
-                if (svdlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                {
-                    ((BlendData)e.Row.Item).Output = svdlg.SelectedPath;
-                    e.EditingEventArgs.Handled = true;
-                    blendGrid.Items.Refresh();
-                }
+                ((BlendData)((ContentPresenter)((StackPanel)((System.Windows.Controls.Button)sender).Parent).TemplatedParent).Content).Output = svdlg.SelectedPath;
+                e.Handled = true;
+                checkEditing();
+                blendGrid.Items.Refresh();
             }
         }
 
@@ -441,7 +459,6 @@ namespace Blender_Batching
             }
             blendGrid.Items.Refresh();
         }
-
     }
 
     public class BlendData
@@ -453,7 +470,22 @@ namespace Blender_Batching
         public int End { get; set; }
         public int Threads { get; set; }
         public string FileMask { get; set; }
-        public string Output { get; set; }
+        private string output;
+        public string Output
+        {
+            get { return output; }
+            set
+            {
+                if (value.EndsWith("\\") || value.EndsWith("/"))
+                {
+                    this.output = value.Substring(0, value.Length - 1);
+                }
+                else
+                {
+                    this.output = value;
+                }
+            }
+        }
 
         System.Windows.Controls.ProgressBar pBar;
         string blenderPath;
@@ -597,7 +629,9 @@ namespace Blender_Batching
             }
             if (Start > -1)
             {
-                for (int i = Start; i <= End; i++)
+                int loopEnd = End < Start ? Start : End;
+
+                for (int i = Start; i <= loopEnd; i++)
                 {
                     if (token.IsCancellationRequested)
                     {
@@ -617,7 +651,7 @@ namespace Blender_Batching
                     cmd += " -f " + i;
                     runBlenderProcess(cmd);
 
-                    if (Start == End)
+                    if (Start == loopEnd)
                         i++;
                 }
             }
