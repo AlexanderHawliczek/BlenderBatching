@@ -27,6 +27,11 @@ namespace Blender_Batching
     /// <summary>
     /// Interaktionslogik für MainWindow.xaml
     /// </summary>
+
+    public enum BlenderFormats
+    {
+        TGA, IRIS, JPEG, MOVIE, IRIZ, RAWTGA, AVIRAW, AVIJPEG, PNG, BMP, FRAMESERVER
+    };
     public partial class MainWindow : Window
     {
         [DllImport("User32.dll")]
@@ -34,7 +39,7 @@ namespace Blender_Batching
         public static extern bool SetForegroundWindow(IntPtr hWnd);
         [DllImportAttribute("User32.DLL")]
         public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-
+        public List<String> FormatsList { get; set; }
         ObservableCollection<BlendData> blendList;
         FolderBrowserDialog svdlg = new FolderBrowserDialog();
         OpenFileDialog openFileDlg = new OpenFileDialog();
@@ -60,9 +65,10 @@ namespace Blender_Batching
         public MainWindow()
         {
             InitializeComponent();
+            DataContext = this;
+            FormatsList = new List<string>() { "FileSetting", "PNG", "TGA", "BMP", "JPEG", "RAWTGA", "IRIS", "MPEG", "IRIZ", "AVIRAW", "AVIJPEG", "FRAMESERVER" };
             svdlg.ShowNewFolderButton = false;
             //svdlg.RootFolder = Environment.SpecialFolder.MyComputer;
-
             openFileDlg.AddExtension = true;
             openFileDlg.DefaultExt = "blend";
             openFileDlg.Filter = "Blender files (*.blend) | *.blend";
@@ -74,11 +80,13 @@ namespace Blender_Batching
             saveFileDlg.Filter = "Batch (*.bat) | *.bat";
             saveFileDlg.RestoreDirectory = true;
             saveFileDlg.OverwritePrompt = true;
-
+            BlendData.FormatsList = FormatsList;
             blendList = new ObservableCollection<BlendData>();
             blendList.CollectionChanged += blendList_CollectionChanged;
 
+            //formatcolumn.item .ItemsSource = formatList;
             blendGrid.ItemsSource = blendList;
+            formatCB.DataContext = FormatsList;
             loadAppData();
         }
 
@@ -113,6 +121,11 @@ namespace Blender_Batching
         private void startIUD_ValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             changeSelected("Start", (int)((IntegerUpDown)sender).Value);
+        }
+
+        private void formatCB_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            changeSelected("FormatID", ((System.Windows.Controls.ComboBox)sender).SelectedIndex);
         }
 
         private void maskTB_TextChanged(object sender, TextChangedEventArgs e)
@@ -459,13 +472,26 @@ namespace Blender_Batching
             }
             blendGrid.Items.Refresh();
         }
+
     }
 
     public class BlendData
     {
+        public static List<String> FormatsList;
         public bool Use { get; set; }
         public string Name { get; set; }
         public string Folder { get; set; }
+        private int formatID;
+        public int FormatID
+        {
+            get { return formatID; }
+            set
+            {
+                formatID = value;
+                Format = FormatsList[value];
+            }
+        }
+        public string Format { get; set; }
         public int Start { get; set; }
         public int End { get; set; }
         public int Threads { get; set; }
@@ -501,6 +527,7 @@ namespace Blender_Batching
             this.Threads = threads;
             this.FileMask = fileMask;
             this.Output = output;
+            this.FormatID = 0;
         }
 
         public BlendData(string batchCommand)
@@ -521,6 +548,10 @@ namespace Blender_Batching
             if (Threads > -1)
             {
                 result += " -t " + Threads;
+            }
+            if (this.FormatID != FormatsList.IndexOf("FileSetting"))
+            {
+                result += " -F " + Format;
             }
             if (Start > -1)
             {
@@ -551,6 +582,7 @@ namespace Blender_Batching
             string output = "-1";
             string[] parts = command.Split('-');
             int pos = 0;
+            int formatID = 0;
             foreach (string item in parts)
             {
                 pos = item.StartsWith("-") ? 1 : 0;
@@ -575,7 +607,7 @@ namespace Blender_Batching
                         break;
                     case "f ":
                     case "render-frame ":
-                        if (int.TryParse(item.Substring(2).Trim(), out pos))
+                        if (int.TryParse(item.Substring(item.Trim().IndexOf(" ")).Trim(), out pos))
                         {
                             start = pos;
                             end = 0;
@@ -583,24 +615,30 @@ namespace Blender_Batching
                         break;
                     case "t ":
                     case "threads ":
-                        if (int.TryParse(item.Substring(2).Trim(), out pos))
+                        if (int.TryParse(item.Substring(item.Trim().IndexOf(" ")).Trim(), out pos))
                         {
                             threads = pos;
                         }
                         break;
                     case "s ":
                     case "frame-start ":
-                        if (int.TryParse(item.Substring(2).Trim(), out pos))
+                        if (int.TryParse(item.Substring(item.Trim().IndexOf(" ")).Trim(), out pos))
                         {
                             start = pos;
                         }
                         break;
                     case "e ":
                     case "frame-end ":
-                        if (int.TryParse(item.Substring(2).Trim(), out pos))
+                        if (int.TryParse(item.Substring(item.Trim().IndexOf(" ")).Trim(), out pos))
                         {
                             end = pos;
                         }
+                        break;
+                    case "F ":
+                    case "render-format ":
+                        formatID = FormatsList.IndexOf(item.Substring(item.Trim().IndexOf(" ")).Trim());
+                        if (formatID < 0)
+                            formatID = 0;
                         break;
                     default:
                         break;
@@ -614,13 +652,14 @@ namespace Blender_Batching
             this.Threads = threads;
             this.FileMask = fileMask;
             this.Output = output;
+            this.FormatID = formatID;
         }
 
         public void StartRendering(CancellationToken token, string blenderPath, System.Windows.Controls.ProgressBar pBar, IntPtr handle)
         {
             this.token = token;
             this.blenderPath = blenderPath;
-            string cmd = blenderPath;
+            string cmd = "";
             this.pBar = pBar;
             if (token.IsCancellationRequested)
             {
@@ -629,36 +668,57 @@ namespace Blender_Batching
             }
             if (Start > -1)
             {
-                int loopEnd = End < Start ? Start : End;
-
-                for (int i = Start; i <= loopEnd; i++)
+                if (FormatID == 0 || FormatID > 6)
                 {
-                    if (token.IsCancellationRequested)
-                    {
-                        return;
-                    }
-                    cmd = "";
-                    cmd += "-b " + "\"" + @Folder + "\\" + Name + ".blend\"";
+                    cmd = " -b " + "\"" + @Folder + "\\" + Name + ".blend\"";
                     if (!Output.Equals("-1") && !FileMask.Equals("-1"))
                     {
                         cmd += " -o " + "\"" + @Output + "\\" + FileMask + "\"";
                     }
-
                     if (Threads > -1)
                     {
                         cmd += " -t " + Threads;
                     }
-                    cmd += " -f " + i;
+                    if (FormatID > 6)
+                    {
+                        cmd += " -F " + Format;
+                    }
+                    cmd += " -s " + Start + " -e " + End + " -a";
                     runBlenderProcess(cmd);
+                }
+                else
+                {
+                    int loopEnd = End < Start ? Start : End;
 
-                    if (Start == loopEnd)
-                        i++;
+                    for (int i = Start; i <= loopEnd; i++)
+                    {
+                        if (token.IsCancellationRequested)
+                        {
+                            return;
+                        }
+                        cmd = " -b " + "\"" + @Folder + "\\" + Name + ".blend\"";
+                        if (!Output.Equals("-1") && !FileMask.Equals("-1"))
+                        {
+                            cmd += " -o " + "\"" + @Output + "\\" + FileMask + "\"";
+                        }
+
+                        if (Threads > -1)
+                        {
+                            cmd += " -t " + Threads;
+                        }
+                        cmd += " -F " + Format;
+                        cmd += " -f " + i;
+                        runBlenderProcess(cmd);
+
+                        if (Start == loopEnd)
+                            i++;
+                    }
                 }
             }
             else
             {
                 cmd = "";
-                cmd += "-b " + "\"" + @Folder + "\\" + Name + ".blend\"";
+                cmd += " -b " + "\"" + @Folder + "\\" + Name + ".blend\"";
                 if (!Output.Equals("-1") && !FileMask.Equals("-1"))
                 {
                     cmd += " -o " + "\"" + @Output + "\\" + FileMask + "\"";
@@ -667,9 +727,13 @@ namespace Blender_Batching
                 {
                     cmd += " -t " + Threads;
                 }
+                if (FormatID > 0)
+                {
+                    cmd += " -F " + Format;
+                }
                 cmd += " -a";
                 runBlenderProcess(cmd);
-                pBar.Dispatcher.BeginInvoke(new Action(() => pBar.Value += pBar.SmallChange));
+                //pBar.Dispatcher.BeginInvoke(new Action(() => pBar.Value += pBar.SmallChange));
             }
         }
 
@@ -677,7 +741,7 @@ namespace Blender_Batching
         {
             int counter = 1;
 
-            if (Start > -1 && End > Start)
+            if (Start > -1 && End > Start && FormatID != 0 && FormatID <= 6)
                 counter = End - Start + 1;
 
             return counter;
