@@ -368,15 +368,18 @@ namespace Blender_Batching
             token = tokenSource.Token;
             int counter = 0;
             Task t;
+            List<BlendData> workList = new List<BlendData>();
+
             foreach (BlendData item in blendList)
             {
                 if (!item.Use) continue;
                 counter += item.GetFrameCount();
+                workList.Add(new BlendData(item));
             }
             progressBar.Maximum = counter;
-            foreach (BlendData item in blendList)
+            foreach (BlendData item in workList)
             {
-                if (!item.Use) continue;
+                //if (!item.Use) continue;
 
                 t = Task.Factory.StartNew(() =>
                {
@@ -385,11 +388,22 @@ namespace Blender_Batching
                 taskBag.Add(t);
                 await checkTasks();
                 if (!t.IsCanceled && !t.IsFaulted)
-                    item.Use = false;
-                blendGrid.Items.Refresh();
+                {
+                    foreach (BlendData finished in blendList)
+                    {
+                        if (finished.Equals(item))
+                        {
+                            finished.Use = false;
+                            blendGrid.Items.Refresh();
+                            break;
+                        }
+                    }
+                }
                 taskBag = new ConcurrentBag<Task>();
             }
 
+            tokenSource.Dispose();
+            tokenSource = new CancellationTokenSource();
             progressBar.Visibility = System.Windows.Visibility.Hidden;
             startBtnImage.Source = new BitmapImage(new Uri(@"Ressources/33.png", UriKind.Relative));
             startBtn.ToolTip = "Start Blender with selected files";
@@ -528,6 +542,18 @@ namespace Blender_Batching
             this.FileMask = fileMask;
             this.Output = output;
             this.FormatID = 0;
+        }
+        public BlendData(BlendData original)
+        {
+            this.Use = original.Use;
+            this.Name = original.Name;
+            this.Folder = original.Folder;
+            this.Start = original.Start;
+            this.End = original.End;
+            this.Threads = original.Threads;
+            this.FileMask = original.FileMask;
+            this.Output = original.Output;
+            this.FormatID = original.FormatID;
         }
 
         public BlendData(string batchCommand)
@@ -769,6 +795,49 @@ namespace Blender_Batching
             pBar.Dispatcher.BeginInvoke(new Action(() => pBar.Value += pBar.SmallChange));
         }
 
+
+        // override object.Equals
+        public override bool Equals(object obj)
+        {
+            //       
+            // See the full list of guidelines at
+            //   http://go.microsoft.com/fwlink/?LinkID=85237  
+            // and also the guidance for operator== at
+            //   http://go.microsoft.com/fwlink/?LinkId=85238
+            //
+
+            if (obj == null || GetType() != obj.GetType())
+            {
+                return false;
+            }
+
+            if (!this.Use.Equals(((BlendData)obj).Use))
+                return false;
+            if (!this.End.Equals(((BlendData)obj).End))
+                return false;
+            if (!this.formatID.Equals(((BlendData)obj).formatID))
+                return false;
+            if (!this.Start.Equals(((BlendData)obj).Start))
+                return false;
+            if (!this.Threads.Equals(((BlendData)obj).Threads))
+                return false;
+            if (!this.Name.Equals(((BlendData)obj).Name))
+                return false;
+            if (!this.FileMask.Equals(((BlendData)obj).FileMask))
+                return false;
+            if (!this.Folder.Equals(((BlendData)obj).Folder))
+                return false;
+            if (!this.output.Equals(((BlendData)obj).output))
+                return false;
+            return true;
+        }
+
+        // override object.GetHashCode
+        public override int GetHashCode()
+        {
+            // TODO: write your implementation of GetHashCode() here
+            return base.GetHashCode();
+        }
     }
 
 }
